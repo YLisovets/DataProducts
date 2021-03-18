@@ -1,0 +1,67 @@
+---
+title: "Course Project: Shiny Application and Reproducible Pitch"
+author: "Yuriy Lisovets"
+date: 'March, 17 2021 '
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+data <- read.csv("Shine_app/Data/data.csv", stringsAsFactors = FALSE)
+```
+
+
+## Course Project
+
+- This is the final presentation for the Course Project
+- The course is focused on Developing Data Products
+- The main objective of the project is to write a Shiny application
+
+You may access my Shinyapp page at https://yuriy.shinyapps.io/Quadrant_sales_analysis/.
+
+Source code for ui.R and server.R files are available on the GitHub https://github.com/YLisovets/DataProducts
+
+## Application Overview
+
+This app solves a real business problem - quickly identify the best performing categories/items in sales dataset using quadrant analysis.
+
+A quadrant chart is nothing but a scatter plot that has four components. Each quadrant upholds data points that have similar characteristics.
+
+Our objective is to evaluate the performance of various sub-categories based on sales and profit metrics.
+
+For analysis we can choose shop (or all shops) and product category (or all categories), and also specify aggregate level.
+
+Results table we can download as Excel file.
+
+## Data Used
+
+The real business data used for this application we load from csv - file. Our dataset have 20206 rows with 6 variables.
+
+
+```{r, echo=TRUE}
+head(data)
+```
+
+## Result Example
+```{r, echo = FALSE}
+data%>%
+    filter(Category == 2, Shop == "Shop_2") %>% 
+    group_by(Item) %>% 
+    summarise(sale = sum(Sales),
+               marg = sum(Gr_Margin)) %>%
+    mutate(Quadrant = ifelse(marg >= mean(marg),
+                             ifelse(sale >= mean(sale), "Star Performers", "Cash Machines"),
+                                 ifelse(sale >= mean(sale), "Core Traffic", "Revision!"))) %>% 
+    ggplot(aes(x = marg, y = sale, color = Quadrant)) +
+            geom_point() +
+            geom_hline(aes(yintercept = mean(sale))) +
+            geom_vline(aes(xintercept = mean(marg))) +
+            labs(x = 'Gross Margin', y = 'Sales', color = '') +
+            theme_bw()
+```
+
